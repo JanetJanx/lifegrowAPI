@@ -1,0 +1,1 @@
+web: gunicorn myapp.entries.landentries:app
