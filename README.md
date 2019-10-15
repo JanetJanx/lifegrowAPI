@@ -1,4 +1,4 @@
-# LAND API
+# Lifegrow API
 
 This project is about the creation of a Land Entry API with the following endpoints.
 1. Get all land entries
