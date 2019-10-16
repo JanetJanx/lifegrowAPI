@@ -4,14 +4,14 @@ import os.path
 import sys
 import pymysql
 
-from myapp import mysql
+from myapp import mysql, app
 from flask import Flask, jsonify, request, make_response
 #from flask_restful import Resource, Api
 from flask_restplus import Api, Resource, fields
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from .landmodel import LandEntry
-app = Flask(__name__)
-app.config["DEBUG"] = True
+# app = Flask(__name__)
+#app.config["DEBUG"] = True
 api = Api(app, version = "1.0", title = "Land Entries", description = "manages land entries for the lifegrow application")
 
 name_space = api.namespace('main', description='Main APIs')

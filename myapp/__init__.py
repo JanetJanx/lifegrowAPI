@@ -13,7 +13,7 @@ from flask_mysqldb import MySQL
 app = Flask(__name__)
 # app = create_app()
 # load from config.py in root folder
-# app.config.from_object(app_config["production"])
+app.config.from_object(app_config["production"])
 
 app.config['MYSQL_HOST'] = 'ctiafrica.io'
 app.config['MYSQL_USER'] = 'root'
