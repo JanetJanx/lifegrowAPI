@@ -31,31 +31,28 @@ class CounterfeitEntryError(Exception):
     pass
 
 class GetAllLandEntries(Resource):
-    land_entries = []
+    # land_entries = []
     @classmethod
     def get(self):
         try:
-            conn = mysql.connect()
-            cursor = conn.cursor(pymysql.cursors.DictCursor)
-            cursor.execute("SELECT * FROM farm_land")
+            db = mysql.connection("cc.ctiafrica.io","root","Silversands123!","cti_lifegrow" )
+            cursor = db.cursor()
+            cursor.execute("SELECT * FROM `farm_land`")
             rows = cursor.fetchall()
             resp = jsonify(rows)
             resp.status_code = 200
-            return make_response(jsonify(
-                {'entries': resp},
-                {"message": "Land Entries successfully fetched"}), 200)
-        except Exception as e:
-            print(e)
-        finally:
+            mysql.connection.commit()
             cursor.close()
-            conn.close()
+            return make_response(jsonify({"message": "Land Entries successfully fetched"}), 200)
+        except Exception as e:
+            return make_response(jsonify({"message": e}), 500)
 
             
 class AddNewLandEntry(Resource):
     @classmethod
     def post(self):
         try:
-            landdata = request.get_json()
+            landdata = request.json()
             landowner = landdata.get('landowner')
             name_owner = landdata.get('name_owner')
             farm_location = landdata.get('farm_location')
@@ -64,18 +61,17 @@ class AddNewLandEntry(Resource):
 
             sql = "INSERT INTO farm_land(farmland_id, land_owner, name_owner, farm_location, landsize, soiltests) VALUES(%s, %s, %s, %s, %s, %s)"
             data = (increment_landentryId(), landowner, name_owner, farm_location, landsize, soiltests)
-            conn = mysql.connect()
+            conn = mysql.connection.cursor()
             cursor = conn.cursor()
             cursor.execute(sql, data)
             conn.commit()
+            cursor.close()
+            conn.close()
             
             return make_response(jsonify({'message': "Land Entry successfully added"}), 200)
 
         except Exception as e:
-            print(e)
-        finally:
-            cursor.close()
-            conn.close()
+            return make_response(jsonify({"message": e}), 500)
 
 
 class ViewSpecificLandEntry(Resource):
@@ -83,24 +79,21 @@ class ViewSpecificLandEntry(Resource):
     @classmethod
     def get(self, entryid):
         try:
-            conn = mysql.connect()
+            conn = mysql.connection.cursor()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
             cursor.execute("SELECT * FROM farm_land WHERE farmland_id=%s", entryid)
             row = cursor.fetchone()
             resp = jsonify(row)
             resp.status_code = 200
             #return resp
+            cursor.close()
+            conn.close()
             return make_response(jsonify(
                 {'entry': resp},
                 {"message": "Land Entry successfully fetched"}), 200)
 
         except Exception as e:
-            print(e)
-
-        finally:
-            cursor.close()
-            conn.close()
-
+            return make_response(jsonify({"message": e}), 500)
 
 class DeleteSpecificLandEntry(Resource):
     """delete a specify entry"""
@@ -108,24 +101,21 @@ class DeleteSpecificLandEntry(Resource):
     def delete(self, entryid):
 
         try:
-            conn = mysql.connect()
+            conn = mysql.connection.cursor()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
             cursor.execute("DELETE * FROM farm_land WHERE farmland_id=%s", entryid)
-            row = cursor.fetchone()
+            row = cursor.fetchall()
             resp = jsonify(row)
             resp.status_code = 200
+            cursor.close()
+            conn.close()
             #return resp
             return make_response(jsonify(
                 {'entry': resp},
                 {"message": "Land Entry successfully removed"}), 200)
 
         except Exception as e:
-            print(e)
-
-        finally:
-            cursor.close()
-            conn.close()
-
+            return make_response(jsonify({"message": e}), 500)
 
 class ModifySpecificLandEntry(Resource):
     """modify a specific entry"""
@@ -143,10 +133,12 @@ class ModifySpecificLandEntry(Resource):
 
             sql = "UPDATE farm_land SET land_owner=%s, name_owner=%s, farm_location=%s, landsize=%s, soiltests=%s WHERE farmland_id=%s"
             data = (landowner, name_owner, farm_location, landsize, soiltests, farmland_id)
-            conn = mysql.connect()
+            conn = mysql.connection.cursor()
             cursor = conn.cursor()
             cursor.execute(sql, data)
             conn.commit()
+            cursor.close()
+            conn.close()
             resp = jsonify('Land detail updated successfully!')
             resp.status_code = 200
 
@@ -157,9 +149,7 @@ class ModifySpecificLandEntry(Resource):
         except (ValueError, KeyError, TypeError):
             return make_response(jsonify(
                 {'message': "JSON Format Error"}), 401)
-        finally:
-            cursor.close()
-            conn.close()
+
 
 api.add_resource(GetAllLandEntries, '/api/v1/getlandentries', methods=['GET'])
 api.add_resource(AddNewLandEntry, '/api/v1/addlandentries', methods=['POST'])
