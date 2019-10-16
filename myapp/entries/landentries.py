@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from .landmodel import LandEntry
 # app = Flask(__name__)
 #app.config["DEBUG"] = True
-api = Api(app, version = "1.0", title = "Land Entries", description = "manages land entries for the lifegrow application")
+api = Api(app, version = "1.0", title = "LifeGrow API", description = "manages db entries for the lifegrow application")
 
 name_space = api.namespace('main', description='Main APIs')
 
@@ -37,7 +37,7 @@ class GetAllLandEntries(Resource):
         try:
             
             cursor = mysql.connection.cursor()
-            cursor.execute("SELECT * FROM farm_land")
+            cursor.execute("SELECT * FROM farmland")
             rows = cursor.fetchall()
             resp = jsonify(rows)
             print(resp)
@@ -46,11 +46,6 @@ class GetAllLandEntries(Resource):
             cursor.close()
             return make_response(jsonify({"message": "Land Entries successfully fetched"}), 200)
         except (ValueError, KeyError, TypeError):
-            cursor = mysql.connection.cursor()
-            cursor.execute("SELECT * FROM farm_land")
-            rows = cursor.fetchall()
-            resp = jsonify(rows)
-
             return make_response(jsonify(
                 {'message': "JSON Format Error"+str(KeyError)+str(resp)}))
 
@@ -60,28 +55,22 @@ class AddNewLandEntry(Resource):
     def post(self):
         try:
             landdata = request.json()
-            landowner = landdata.get('landowner')
-            name_owner = landdata.get('name_owner')
-            farm_location = landdata.get('farm_location')
-            landsize = landdata.get('landsize')
-            soiltests = landdata.get('soiltests')
+            landowner = landdata['landowner']
+            name_owner = landdata['nameowner']
+            farm_location = landdata['farmlocation']
+            landsize = landdata['landsize']
+            soiltests = landdata['soiltests']
 
-            sql = "INSERT INTO farm_land(farmland_id, land_owner, name_owner, farm_location, landsize, soiltests) VALUES(%s, %s, %s, %s, %s, %s)"
-            data = (increment_landentryId(), landowner, name_owner, farm_location, landsize, soiltests)
-            conn = mysql.connection.cursor()
-            cursor = conn.cursor()
+            sql = "INSERT INTO farmland(land_owner, name_owner, farm_location, landsize, soiltests) VALUES(%s, %s, %s, %s, %s)"
+            data = (landowner, name_owner, farm_location, landsize, soiltests)
+            cursor = mysql.connection.cursor()
             cursor.execute(sql, data)
-            conn.commit()
+            mysql.connection.commit()
             cursor.close()
-            conn.close()
-            
             return make_response(jsonify({'message': "Land Entry successfully added"}), 200)
-
-        except Exception as e:
-            return make_response(
-                jsonify(
-                    {"message": e}), 
-                    500)
+        except (ValueError, KeyError, TypeError):
+            return make_response(jsonify(
+                {'message': "JSON Format Error"}))
 
 
 class ViewSpecificLandEntry(Resource):
@@ -89,21 +78,21 @@ class ViewSpecificLandEntry(Resource):
     @classmethod
     def get(self, entryid):
         try:
-            conn = mysql.connection.cursor()
-            cursor = conn.cursor(pymysql.cursors.DictCursor)
-            cursor.execute("SELECT * FROM farm_land WHERE farmland_id=%s", entryid)
+            cursor = mysql.connection.cursor()
+            cursor.execute("SELECT * FROM farmland WHERE farmland_id=%s", entryid)
             row = cursor.fetchone()
             resp = jsonify(row)
             resp.status_code = 200
+            mysql.connection.commit()
             #return resp
             cursor.close()
-            conn.close()
             return make_response(jsonify(
                 {'entry': resp},
                 {"message": "Land Entry successfully fetched"}), 200)
 
-        except Exception as e:
-            return make_response(jsonify({"message": e}), 500)
+        except (ValueError, KeyError, TypeError):
+            return make_response(jsonify(
+                {'message': "JSON Format Error"}))
 
 class DeleteSpecificLandEntry(Resource):
     """delete a specify entry"""
@@ -111,21 +100,21 @@ class DeleteSpecificLandEntry(Resource):
     def delete(self, entryid):
 
         try:
-            conn = mysql.connection.cursor()
-            cursor = conn.cursor(pymysql.cursors.DictCursor)
-            cursor.execute("DELETE * FROM farm_land WHERE farmland_id=%s", entryid)
+            cursor = mysql.connection.cursor()
+            cursor.execute("DELETE * FROM farmland WHERE farmland_id=%s", entryid)
             row = cursor.fetchall()
             resp = jsonify(row)
             resp.status_code = 200
+            mysql.connection.commit()
             cursor.close()
-            conn.close()
             #return resp
             return make_response(jsonify(
                 {'entry': resp},
                 {"message": "Land Entry successfully removed"}), 200)
 
-        except Exception as e:
-            return make_response(jsonify({"message": e}), 500)
+        except (ValueError, KeyError, TypeError):
+            return make_response(jsonify(
+                {'message': "JSON Format Error"}))
 
 class ModifySpecificLandEntry(Resource):
     """modify a specific entry"""
@@ -140,14 +129,12 @@ class ModifySpecificLandEntry(Resource):
             landsize = landdata.get('land size')
             soiltests = landdata.get('soil tests')
 
-            sql = "UPDATE farm_land SET land_owner=%s, name_owner=%s, farm_location=%s, landsize=%s, soiltests=%s WHERE farmland_id=%s"
+            sql = "UPDATE farmland SET land_owner=%s, name_owner=%s, farm_location=%s, landsize=%s, soiltests=%s WHERE farmland_id=%s"
             data = (landowner, name_owner, farm_location, landsize, soiltests, farmland_id)
-            conn = mysql.connection.cursor()
-            cursor = conn.cursor()
+            cursor = mysql.connection.cursor()
             cursor.execute(sql, data)
-            conn.commit()
+            mysql.connection.commit()
             cursor.close()
-            conn.close()
             resp = jsonify('Land detail updated successfully!')
             resp.status_code = 200
 
