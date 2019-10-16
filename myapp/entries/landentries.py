@@ -121,7 +121,6 @@ class ModifySpecificLandEntry(Resource):
     """modify a specific entry"""
     @classmethod
     def put(self, entryid):
-        land_entry = [land_entry for land_entry in GetAllLandEntries.land_entries if land_entry['entryId'] == entryid]
         try:
             landdata = request.get_json()
             farmland_id = landdata.get('entryId')
