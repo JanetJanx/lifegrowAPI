@@ -1,20 +1,26 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Api
 from .config import app_config
 
 from flask_mysqldb import MySQL
 
-def create_app():
+# def create_app():
     # Initialize flask app
-    app_ = Flask(__name__, instance_relative_config=True)
+# app_ = Flask(__name__, instance_relative_config=True)
 
-    return app_
+    # return app_
 
-
-app = create_app()
+app = Flask(__name__)
+# app = create_app()
 # load from config.py in root folder
-app.config.from_object(app_config["production"])
+# app.config.from_object(app_config["production"])
 
-mysql = MySQL()
+app.config['MYSQL_HOST'] = 'ctiafrica.io'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'silversands123!'
+app.config['MYSQL_DB'] = 'cti_lifegrow'
+
+
+mysql = MySQL(app)
 
 from myapp.entries.landmodel import LandEntry

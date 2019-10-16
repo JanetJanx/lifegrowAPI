@@ -36,9 +36,8 @@ class GetAllLandEntries(Resource):
     def get(self):
         try:
             
-            db = mysql.connection("ctiafrica.io","root","Silversands123!","cti_lifegrow" )
-            cursor = db.cursor()
-            cursor.execute("SELECT * FROM `farm_land`")
+            cursor = mysql.connection.cursor()
+            cursor.execute("SELECT * FROM farm_land")
             rows = cursor.fetchall()
             resp = jsonify(rows)
             print(resp)
@@ -47,8 +46,13 @@ class GetAllLandEntries(Resource):
             cursor.close()
             return make_response(jsonify({"message": "Land Entries successfully fetched"}), 200)
         except (ValueError, KeyError, TypeError):
+            cursor = mysql.connection.cursor()
+            cursor.execute("SELECT * FROM farm_land")
+            rows = cursor.fetchall()
+            resp = jsonify(rows)
+
             return make_response(jsonify(
-                {'message': "JSON Format Error"+str(KeyError)+str(TypeError)}), 401)
+                {'message': "JSON Format Error"+str(KeyError)+str(resp)}))
 
             
 class AddNewLandEntry(Resource):
