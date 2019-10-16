@@ -5,7 +5,7 @@ class BaseConfig(object):
     Common configurations
     """
     TESTING = False
-    DEBUG = False
+    DEBUG = True
     SECRET_KEY = os.urandom(30)
 
 class TestingConfig(BaseConfig):
@@ -27,7 +27,7 @@ class ProductionConfig(BaseConfig):
     Production configurations
     """
 
-    DEBUG = False
+    DEBUG = True
 
 
 app_config = {

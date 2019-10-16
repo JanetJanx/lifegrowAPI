@@ -45,7 +45,7 @@ class GetAllLandEntries(Resource):
             cursor.close()
             return make_response(jsonify({"message": "Land Entries successfully fetched"}), 200)
         except Exception as e:
-            return make_response(jsonify({"message": e}), 500)
+            return
 
             
 class AddNewLandEntry(Resource):
@@ -71,7 +71,10 @@ class AddNewLandEntry(Resource):
             return make_response(jsonify({'message': "Land Entry successfully added"}), 200)
 
         except Exception as e:
-            return make_response(jsonify({"message": e}), 500)
+            return make_response(
+                jsonify(
+                    {"message": e}), 
+                    500)
 
 
 class ViewSpecificLandEntry(Resource):
