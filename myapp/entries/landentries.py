@@ -35,17 +35,20 @@ class GetAllLandEntries(Resource):
     @classmethod
     def get(self):
         try:
-            db = mysql.connection("cc.ctiafrica.io","root","Silversands123!","cti_lifegrow" )
+            
+            db = mysql.connection("ctiafrica.io","root","Silversands123!","cti_lifegrow" )
             cursor = db.cursor()
             cursor.execute("SELECT * FROM `farm_land`")
             rows = cursor.fetchall()
             resp = jsonify(rows)
+            print(resp)
             resp.status_code = 200
             mysql.connection.commit()
             cursor.close()
             return make_response(jsonify({"message": "Land Entries successfully fetched"}), 200)
-        except Exception as e:
-            return
+        except (ValueError, KeyError, TypeError):
+            return make_response(jsonify(
+                {'message': "JSON Format Error"+str(KeyError)+str(TypeError)}), 401)
 
             
 class AddNewLandEntry(Resource):
