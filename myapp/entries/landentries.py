@@ -50,12 +50,13 @@ class AddNewLandEntry(Resource):
     @classmethod
     def post(self):
         try:
-            landdata = request.json()
-            landowner = landdata['landowner']
-            name_owner = landdata['nameowner']
-            farm_location = landdata['farmlocation']
-            landsize = landdata['landsize']
-            soiltests = landdata['soiltests']
+            landdata = request.get_json()
+            landdata = json.loads(landdata)
+            landowner = str(landdata['landowner'])
+            name_owner = str(landdata['nameowner'])
+            farm_location = str(landdata['farmlocation'])
+            landsize = str(landdata['landsize'])
+            soiltests = str(landdata['soiltests'])
 
             sql = "INSERT INTO farmland(land_owner, name_owner, farm_location, landsize, soiltests) VALUES(%s, %s, %s, %s, %s)"
             data = (landowner, name_owner, farm_location, landsize, soiltests)
