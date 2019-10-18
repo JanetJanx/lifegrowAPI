@@ -50,15 +50,13 @@ class AddNewLandEntry(Resource):
     @classmethod
     def post(self):
         try:
-            landdata = request.get_json()
-            landdata = json.loads(landdata)
-            landowner = str(landdata['landowner'])
-            name_owner = str(landdata['nameowner'])
-            farm_location = str(landdata['farmlocation'])
-            landsize = str(landdata['landsize'])
-            soiltests = str(landdata['soiltests'])
+            landowner = request.args.get('landowner')
+            name_owner = request.args.get('nameowner')
+            farm_location = request.args.get('farmlocation')
+            landsize = request.args.get('landsize')
+            soiltests = request.args.get('soiltests')
 
-            sql = "INSERT INTO farmland(land_owner, name_owner, farm_location, landsize, soiltests) VALUES(%s, %s, %s, %s, %s)"
+            sql = "INSERT INTO farmland(landowner, name_owner, farm_location, landsize, soiltests) VALUES(%s, %s, %s, %s, %s)"
             data = (landowner, name_owner, farm_location, landsize, soiltests)
             cursor = mysql.cursor()
             cursor.execute(sql, data)
@@ -92,15 +90,11 @@ class DeleteSpecificLandEntry(Resource):
 
         try:
             cursor = mysql.cursor()
-            cursor.execute("DELETE * FROM farmland WHERE farmland_id=%s", entryid)
-            row = cursor.fetchall()
-            resp = jsonify(row)
-            resp.status_code = 200
-            cursor.commit()
-            cursor.close()
+            cursor.execute("DELETE FROM farmland WHERE farmland_id=%s", entryid)
+            row = cursor.fetchone()
             #return resp
             return make_response(jsonify(
-                {'entry': resp},
+                {'entry': row},
                 {"message": "Land Entry successfully removed"}), 200)
 
         except (ValueError, KeyError, TypeError):
@@ -112,25 +106,19 @@ class ModifySpecificLandEntry(Resource):
     @classmethod
     def put(self, entryid):
         try:
-            landdata = request.get_json()
-            farmland_id = landdata.get('entryId')
-            landowner = landdata.get('land owner')
-            name_owner = landdata.get('name owner')
-            farm_location = landdata.get('farm location')
-            landsize = landdata.get('land size')
-            soiltests = landdata.get('soil tests')
+            landowner = request.args.get('landowner')
+            name_owner = request.args.get('nameowner')
+            farm_location = request.args.get('farmlocation')
+            landsize = request.args.get('landsize')
+            soiltests = request.args.get('soiltests')
 
-            sql = "UPDATE farmland SET land_owner=%s, name_owner=%s, farm_location=%s, landsize=%s, soiltests=%s WHERE farmland_id=%s"
-            data = (landowner, name_owner, farm_location, landsize, soiltests, farmland_id)
+            sql = "UPDATE farmland SET landowner=%s, name_owner=%s, farm_location=%s, landsize=%s, soiltests=%s WHERE farmland_id=%s"
+            data = (landowner, name_owner, farm_location, landsize, soiltests, entryid)
             cursor = mysql.cursor()
             cursor.execute(sql, data)
-            cursor.commit()
-            cursor.close()
-            resp = jsonify('Land detail updated successfully!')
-            resp.status_code = 200
-
+            mysql.commit()
             return make_response(jsonify(
-                {'entry': resp},
+                {'entry': data},
                 {'message': "Land Entry successfully updated"}), 201)
 
         except (ValueError, KeyError, TypeError):
