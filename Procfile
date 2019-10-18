@@ -1,1 +1,1 @@
-web: gunicorn myapp.entries.landentries:app
+web: gunicorn myapp.entries.landentries:app --log-file=-
