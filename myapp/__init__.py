@@ -12,4 +12,4 @@ app.config.from_object(app_config["production"])
 
 mysql = mysql.connect(host='localhost', user='root', password='', db='cti_lifegrow', cursorclass=mysql.cursors.DictCursor)
 
-from myapp.entries.landmodel import LandEntry
+from myapp.entries.model import *
